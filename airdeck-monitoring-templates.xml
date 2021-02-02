@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-02-02T06:35:51Z</date>
+    <date>2021-02-02T07:01:06Z</date>
     <groups>
         <group>
             <name>airdeck</name>
@@ -11,17 +11,6 @@
         <template>
             <template>airdeck_monitoring</template>
             <name>airdeck_monitoring</name>
-            <templates>
-                <template>
-                    <name>Template Disk Performance</name>
-                </template>
-                <template>
-                    <name>Template Module Linux block devices by Zabbix agent</name>
-                </template>
-                <template>
-                    <name>Template Module Linux filesystems by Zabbix agent</name>
-                </template>
-            </templates>
             <groups>
                 <group>
                     <name>airdeck</name>
@@ -29,7 +18,19 @@
             </groups>
             <applications>
                 <application>
+                    <name>Disk Performance</name>
+                </application>
+                <application>
+                    <name>Filesystems</name>
+                </application>
+                <application>
                     <name>Network interfaces</name>
+                </application>
+                <application>
+                    <name>Storage</name>
+                </application>
+                <application>
+                    <name>Zabbix raw items</name>
                 </application>
             </applications>
             <items>
@@ -74,6 +75,188 @@ return (100 - value)</params>
             </items>
             <discovery_rules>
                 <discovery_rule>
+                    <name>Disk discovery</name>
+                    <key>custom.vfs.discover_disks</key>
+                    <delay>3600</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Disk:$1:Read:Ops per second</name>
+                            <key>custom.vfs.dev.read.ops[{#DEVICENAME}]</key>
+                            <delay>60</delay>
+                            <history>30d</history>
+                            <units>ops/s</units>
+                            <description>Field #4&#13;
+This is the total number of reads completed successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Read:Bytes/sec</name>
+                            <key>custom.vfs.dev.read.sectors[{#DEVICENAME}]</key>
+                            <delay>60</delay>
+                            <history>30d</history>
+                            <units>B/sec</units>
+                            <description>Field #6&#13;
+This is the total number of sectors read successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>512</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Write:Ops per second</name>
+                            <key>custom.vfs.dev.write.ops[{#DEVICENAME}]</key>
+                            <delay>60</delay>
+                            <history>30d</history>
+                            <units>ops/s</units>
+                            <description>Field #8&#13;
+This is the total number of writes completed successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Disk:$1:Write:Bytes/sec</name>
+                            <key>custom.vfs.dev.write.sectors[{#DEVICENAME}]</key>
+                            <delay>60</delay>
+                            <history>30d</history>
+                            <units>B/sec</units>
+                            <description>Field #10&#13;
+This is the total number of sectors written successfully.</description>
+                            <applications>
+                                <application>
+                                    <name>Disk Performance</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>512</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                    </item_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - Bytes/second</name>
+                            <ymin_type_1>FIXED</ymin_type_1>
+                            <graph_items>
+                                <graph_item>
+                                    <drawtype>GRADIENT_LINE</drawtype>
+                                    <color>00C800</color>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.read.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>GRADIENT_LINE</drawtype>
+                                    <color>C80000</color>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.write.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - Ops/second</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>00C800</color>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.read.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>C80000</color>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.write.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Disk {#DEVICENAME} - Overview</name>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>C8C800</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.read.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <color>C8C8C8</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.read.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>4</sortorder>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.write.sectors[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>6</sortorder>
+                                    <color>000096</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>custom.vfs.dev.write.ops[{#DEVICENAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+                <discovery_rule>
                     <name>Network interface discovery</name>
                     <key>net.if.discovery</key>
                     <delay>1h</delay>
@@ -96,40 +279,6 @@ return (100 - value)</params>
                     <description>Discovery of network interfaces.</description>
                     <item_prototypes>
                         <item_prototype>
-                            <name>Interface {#IFNAME}: Inbound packets discarded</name>
-                            <key>net.if.in[&quot;{#IFNAME}&quot;,dropped]</key>
-                            <delay>3m</delay>
-                            <history>7d</history>
-                            <application_prototypes>
-                                <application_prototype>
-                                    <name>Interface {#IFNAME}</name>
-                                </application_prototype>
-                            </application_prototypes>
-                            <preprocessing>
-                                <step>
-                                    <type>CHANGE_PER_SECOND</type>
-                                    <params/>
-                                </step>
-                            </preprocessing>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Interface {#IFNAME}: Inbound packets with errors</name>
-                            <key>net.if.in[&quot;{#IFNAME}&quot;,errors]</key>
-                            <delay>3m</delay>
-                            <history>7d</history>
-                            <application_prototypes>
-                                <application_prototype>
-                                    <name>Interface {#IFNAME}</name>
-                                </application_prototype>
-                            </application_prototypes>
-                            <preprocessing>
-                                <step>
-                                    <type>CHANGE_PER_SECOND</type>
-                                    <params/>
-                                </step>
-                            </preprocessing>
-                        </item_prototype>
-                        <item_prototype>
                             <name>Interface {#IFNAME}: Bits received</name>
                             <key>net.if.in[&quot;{#IFNAME}&quot;]</key>
                             <delay>3m</delay>
@@ -148,40 +297,6 @@ return (100 - value)</params>
                                 <step>
                                     <type>MULTIPLIER</type>
                                     <params>8</params>
-                                </step>
-                            </preprocessing>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Interface {#IFNAME}: Outbound packets discarded</name>
-                            <key>net.if.out[&quot;{#IFNAME}&quot;,dropped]</key>
-                            <delay>3m</delay>
-                            <history>7d</history>
-                            <application_prototypes>
-                                <application_prototype>
-                                    <name>Interface {#IFNAME}</name>
-                                </application_prototype>
-                            </application_prototypes>
-                            <preprocessing>
-                                <step>
-                                    <type>CHANGE_PER_SECOND</type>
-                                    <params/>
-                                </step>
-                            </preprocessing>
-                        </item_prototype>
-                        <item_prototype>
-                            <name>Interface {#IFNAME}: Outbound packets with errors</name>
-                            <key>net.if.out[&quot;{#IFNAME}&quot;,errors]</key>
-                            <delay>3m</delay>
-                            <history>7d</history>
-                            <application_prototypes>
-                                <application_prototype>
-                                    <name>Interface {#IFNAME}</name>
-                                </application_prototype>
-                            </application_prototypes>
-                            <preprocessing>
-                                <step>
-                                    <type>CHANGE_PER_SECOND</type>
-                                    <params/>
                                 </step>
                             </preprocessing>
                         </item_prototype>
@@ -208,69 +323,6 @@ return (100 - value)</params>
                             </preprocessing>
                         </item_prototype>
                         <item_prototype>
-                            <name>Interface {#IFNAME}: Operational status</name>
-                            <key>vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;]</key>
-                            <history>7d</history>
-                            <trends>0</trends>
-                            <description>Indicates the interface RFC2863 operational state as a string.&#13;
-Possible values are:&quot;unknown&quot;, &quot;notpresent&quot;, &quot;down&quot;, &quot;lowerlayerdown&quot;, &quot;testing&quot;,&quot;dormant&quot;, &quot;up&quot;.&#13;
-Reference: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net</description>
-                            <application_prototypes>
-                                <application_prototype>
-                                    <name>Interface {#IFNAME}</name>
-                                </application_prototype>
-                            </application_prototypes>
-                            <valuemap>
-                                <name>IF-MIB::ifOperStatus</name>
-                            </valuemap>
-                            <preprocessing>
-                                <step>
-                                    <type>JAVASCRIPT</type>
-                                    <params>var newvalue;
-switch(value) {
-  case &quot;up&quot;:
-    newvalue = 1;
-    break;
-  case &quot;down&quot;:
-    newvalue = 2;
-    break;
-  case &quot;testing&quot;:
-    newvalue = 4;
-    break;
-  case &quot;unknown&quot;:
-    newvalue = 5;
-    break;
-  case &quot;dormant&quot;:
-    newvalue = 6;
-    break;
-  case &quot;notPresent&quot;:
-    newvalue = 7;
-    break;
-  default:
-    newvalue = &quot;Problem parsing interface operstate in JS&quot;;
-}
-return newvalue;</params>
-                                </step>
-                            </preprocessing>
-                            <trigger_prototypes>
-                                <trigger_prototype>
-                                    <expression>{$IFCONTROL:&quot;{#IFNAME}&quot;}=1 and ({last()}=2 and {diff()}=1)</expression>
-                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
-                                    <recovery_expression>{last()}&lt;&gt;2 or {$IFCONTROL:&quot;{#IFNAME}&quot;}=0</recovery_expression>
-                                    <name>Interface {#IFNAME}: Link down</name>
-                                    <opdata>Current state: {ITEM.LASTVALUE1}</opdata>
-                                    <priority>AVERAGE</priority>
-                                    <description>This trigger expression works as follows:&#13;
-1. Can be triggered if operations status is down.&#13;
-2. {$IFCONTROL:&quot;{#IFNAME}&quot;}=1 - user can redefine Context macro to value - 0. That marks this interface as not important. No new trigger will be fired if this interface is down.&#13;
-3. {TEMPLATE_NAME:METRIC.diff()}=1) - trigger fires only if operational status was up(1) sometime before. (So, do not fire 'ethernal off' interfaces.)&#13;
-&#13;
-WARNING: if closed manually - won't fire again on next poll, because of .diff.</description>
-                                    <manual_close>YES</manual_close>
-                                </trigger_prototype>
-                            </trigger_prototypes>
-                        </item_prototype>
-                        <item_prototype>
                             <name>Interface {#IFNAME}: Interface type</name>
                             <key>vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/type&quot;]</key>
                             <delay>1h</delay>
@@ -295,50 +347,6 @@ Reference: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net<
                             </preprocessing>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes>
-                        <trigger_prototype>
-                            <expression>{airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/type&quot;].change()}&lt;0 and {airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/type&quot;].last()}&gt;0&#13;
-and&#13;
-({airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/type&quot;].last()}=6&#13;
-or {airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/type&quot;].last()}=1)&#13;
-and&#13;
-({airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].last()}&lt;&gt;2)</expression>
-                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
-                            <recovery_expression>({airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/type&quot;].change()}&gt;0 and {airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/type&quot;].prev()}&gt;0) or&#13;
-({airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].last()}=2)</recovery_expression>
-                            <name>Interface {#IFNAME}: Ethernet has changed to lower speed than it was before</name>
-                            <opdata>Current reported speed: {ITEM.LASTVALUE1}</opdata>
-                            <priority>INFO</priority>
-                            <description>This Ethernet connection has transitioned down from its known maximum speed. This might be a sign of autonegotiation issues. Ack to close.</description>
-                            <manual_close>YES</manual_close>
-                            <dependencies>
-                                <dependency>
-                                    <name>Interface {#IFNAME}: Link down</name>
-                                    <expression>{$IFCONTROL:&quot;{#IFNAME}&quot;}=1 and ({airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].last()}=2 and {airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].diff()}=1)</expression>
-                                    <recovery_expression>{airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].last()}&lt;&gt;2 or {$IFCONTROL:&quot;{#IFNAME}&quot;}=0</recovery_expression>
-                                </dependency>
-                            </dependencies>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{airdeck_monitoring:net.if.in[&quot;{#IFNAME}&quot;,errors].min(5m)}&gt;{$IF.ERRORS.WARN:&quot;{#IFNAME}&quot;}&#13;
-or {airdeck_monitoring:net.if.out[&quot;{#IFNAME}&quot;,errors].min(5m)}&gt;{$IF.ERRORS.WARN:&quot;{#IFNAME}&quot;}</expression>
-                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
-                            <recovery_expression>{airdeck_monitoring:net.if.in[&quot;{#IFNAME}&quot;,errors].max(5m)}&lt;{$IF.ERRORS.WARN:&quot;{#IFNAME}&quot;}*0.8&#13;
-and {airdeck_monitoring:net.if.out[&quot;{#IFNAME}&quot;,errors].max(5m)}&lt;{$IF.ERRORS.WARN:&quot;{#IFNAME}&quot;}*0.8</recovery_expression>
-                            <name>Interface {#IFNAME}: High error rate ( &gt; {$IF.ERRORS.WARN:&quot;{#IFNAME}&quot;} for 5m)</name>
-                            <opdata>errors in: {ITEM.LASTVALUE1}, errors out: {ITEM.LASTVALUE2}</opdata>
-                            <priority>WARNING</priority>
-                            <description>Recovers when below 80% of {$IF.ERRORS.WARN:&quot;{#IFNAME}&quot;} threshold</description>
-                            <manual_close>YES</manual_close>
-                            <dependencies>
-                                <dependency>
-                                    <name>Interface {#IFNAME}: Link down</name>
-                                    <expression>{$IFCONTROL:&quot;{#IFNAME}&quot;}=1 and ({airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].last()}=2 and {airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].diff()}=1)</expression>
-                                    <recovery_expression>{airdeck_monitoring:vfs.file.contents[&quot;/sys/class/net/{#IFNAME}/operstate&quot;].last()}&lt;&gt;2 or {$IFCONTROL:&quot;{#IFNAME}&quot;}=0</recovery_expression>
-                                </dependency>
-                            </dependencies>
-                        </trigger_prototype>
-                    </trigger_prototypes>
                     <graph_prototypes>
                         <graph_prototype>
                             <name>Interface {#IFNAME}: Bits sent &amp; received</name>
@@ -361,60 +369,364 @@ and {airdeck_monitoring:net.if.out[&quot;{#IFNAME}&quot;,errors].max(5m)}&lt;{$I
                                 </graph_item>
                             </graph_items>
                         </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Block devices discovery</name>
+                    <key>vfs.dev.discovery</key>
+                    <delay>1h</delay>
+                    <filter>
+                        <evaltype>AND</evaltype>
+                        <conditions>
+                            <condition>
+                                <macro>{#DEVTYPE}</macro>
+                                <value>disk</value>
+                                <formulaid>C</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#DEVNAME}</macro>
+                                <value>{$VFS.DEV.DEVNAME.MATCHES}</value>
+                                <formulaid>B</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#DEVNAME}</macro>
+                                <value>{$VFS.DEV.DEVNAME.NOT_MATCHES}</value>
+                                <operator>NOT_MATCHES_REGEX</operator>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>{#DEVNAME}: Disk read request avg waiting time (r_await)</name>
+                            <type>CALCULATED</type>
+                            <key>vfs.dev.read.await[{#DEVNAME}]</key>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>!ms</units>
+                            <params>(last(&quot;vfs.dev.read.time.rate[{#DEVNAME}]&quot;)/(last(&quot;vfs.dev.read.rate[{#DEVNAME}]&quot;)+(last(&quot;vfs.dev.read.rate[{#DEVNAME}]&quot;)=0)))*1000*(last(&quot;vfs.dev.read.rate[{#DEVNAME}]&quot;) &gt; 0)</params>
+                            <description>This formula contains two boolean expressions that evaluates to 1 or 0 in order to set calculated metric to zero and to avoid division by zero exception.</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Disk {#DEVNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DEVNAME}: Disk read rate</name>
+                            <type>DEPENDENT</type>
+                            <key>vfs.dev.read.rate[{#DEVNAME}]</key>
+                            <delay>0</delay>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>!r/s</units>
+                            <description>r/s. The number (after merges) of read requests completed per second for the device.</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Disk {#DEVNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$[0]</params>
+                                </step>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>vfs.file.contents[/sys/block/{#DEVNAME}/stat]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DEVNAME}: Disk write request avg waiting time (w_await)</name>
+                            <type>CALCULATED</type>
+                            <key>vfs.dev.write.await[{#DEVNAME}]</key>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>!ms</units>
+                            <params>(last(&quot;vfs.dev.write.time.rate[{#DEVNAME}]&quot;)/(last(&quot;vfs.dev.write.rate[{#DEVNAME}]&quot;)+(last(&quot;vfs.dev.write.rate[{#DEVNAME}]&quot;)=0)))*1000*(last(&quot;vfs.dev.write.rate[{#DEVNAME}]&quot;) &gt; 0)</params>
+                            <description>This formula contains two boolean expressions that evaluates to 1 or 0 in order to set calculated metric to zero and to avoid division by zero exception.</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Disk {#DEVNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DEVNAME}: Disk write rate</name>
+                            <type>DEPENDENT</type>
+                            <key>vfs.dev.write.rate[{#DEVNAME}]</key>
+                            <delay>0</delay>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>!w/s</units>
+                            <description>w/s. The number (after merges) of write requests completed per second for the device.</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Disk {#DEVNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$[4]</params>
+                                </step>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>vfs.file.contents[/sys/block/{#DEVNAME}/stat]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DEVNAME}: Get stats</name>
+                            <key>vfs.file.contents[/sys/block/{#DEVNAME}/stat]</key>
+                            <history>0</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <description>Get contents of /sys/block/{#DEVNAME}/stat for disk stats.</description>
+                            <applications>
+                                <application>
+                                    <name>Zabbix raw items</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JAVASCRIPT</type>
+                                    <params>return JSON.stringify(value.trim().split(/ +/));</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{airdeck_monitoring:vfs.dev.read.await[{#DEVNAME}].min(15m)} &gt; {$VFS.DEV.READ.AWAIT.WARN:&quot;{#DEVNAME}&quot;} or {airdeck_monitoring:vfs.dev.write.await[{#DEVNAME}].min(15m)} &gt; {$VFS.DEV.WRITE.AWAIT.WARN:&quot;{#DEVNAME}&quot;}</expression>
+                            <name>{#DEVNAME}: Disk read/write request responses are too high (read &gt; {$VFS.DEV.READ.AWAIT.WARN:&quot;{#DEVNAME}&quot;} ms for 15m or write &gt; {$VFS.DEV.WRITE.AWAIT.WARN:&quot;{#DEVNAME}&quot;} ms for 15m)</name>
+                            <priority>WARNING</priority>
+                            <description>This trigger might indicate disk {#DEVNAME} saturation.</description>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <graph_prototypes>
                         <graph_prototype>
-                            <name>Interface {#IFNAME}: Network traffic</name>
+                            <name>{#DEVNAME}: Disk average waiting time</name>
                             <graph_items>
                                 <graph_item>
-                                    <drawtype>GRADIENT_LINE</drawtype>
                                     <color>1A7C11</color>
                                     <item>
                                         <host>airdeck_monitoring</host>
-                                        <key>net.if.in[&quot;{#IFNAME}&quot;]</key>
+                                        <key>vfs.dev.read.await[{#DEVNAME}]</key>
                                     </item>
                                 </graph_item>
                                 <graph_item>
                                     <sortorder>1</sortorder>
-                                    <drawtype>BOLD_LINE</drawtype>
+                                    <drawtype>GRADIENT_LINE</drawtype>
                                     <color>2774A4</color>
                                     <item>
                                         <host>airdeck_monitoring</host>
-                                        <key>net.if.out[&quot;{#IFNAME}&quot;]</key>
+                                        <key>vfs.dev.write.await[{#DEVNAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>{#DEVNAME}: Disk read/write rates</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>1A7C11</color>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>vfs.dev.read.rate[{#DEVNAME}]</key>
                                     </item>
                                 </graph_item>
                                 <graph_item>
-                                    <sortorder>2</sortorder>
-                                    <color>F63100</color>
-                                    <yaxisside>RIGHT</yaxisside>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>GRADIENT_LINE</drawtype>
+                                    <color>2774A4</color>
                                     <item>
                                         <host>airdeck_monitoring</host>
-                                        <key>net.if.out[&quot;{#IFNAME}&quot;,errors]</key>
+                                        <key>vfs.dev.write.rate[{#DEVNAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                    <preprocessing>
+                        <step>
+                            <type>DISCARD_UNCHANGED_HEARTBEAT</type>
+                            <params>1h</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Mounted filesystem discovery</name>
+                    <key>vfs.fs.discovery</key>
+                    <delay>1h</delay>
+                    <filter>
+                        <evaltype>AND</evaltype>
+                        <conditions>
+                            <condition>
+                                <macro>{#FSTYPE}</macro>
+                                <value>{$VFS.FS.FSTYPE.MATCHES}</value>
+                                <formulaid>C</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#FSTYPE}</macro>
+                                <value>{$VFS.FS.FSTYPE.NOT_MATCHES}</value>
+                                <operator>NOT_MATCHES_REGEX</operator>
+                                <formulaid>D</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#FSNAME}</macro>
+                                <value>{$VFS.FS.FSNAME.MATCHES}</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#FSNAME}</macro>
+                                <value>{$VFS.FS.FSNAME.NOT_MATCHES}</value>
+                                <operator>NOT_MATCHES_REGEX</operator>
+                                <formulaid>B</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <description>Discovery of file systems of different types.</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>{#FSNAME}: Free inodes in %</name>
+                            <key>vfs.fs.inode[{#FSNAME},pfree]</key>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>%</units>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Filesystem {#FSNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(5m)}&lt;{$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}</expression>
+                                    <name>{#FSNAME}: Running out of free inodes (free &lt; {$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}%)</name>
+                                    <opdata>Free inodes: {ITEM.LASTVALUE1}</opdata>
+                                    <priority>AVERAGE</priority>
+                                    <description>It may become impossible to write to disk if there are no index nodes left.&#13;
+As symptoms, 'No space left on device' or 'Disk is full' errors may be seen even though free space is available.</description>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{min(5m)}&lt;{$VFS.FS.INODE.PFREE.MIN.WARN:&quot;{#FSNAME}&quot;}</expression>
+                                    <name>{#FSNAME}: Running out of free inodes (free &lt; {$VFS.FS.INODE.PFREE.MIN.WARN:&quot;{#FSNAME}&quot;}%)</name>
+                                    <opdata>Free inodes: {ITEM.LASTVALUE1}</opdata>
+                                    <priority>WARNING</priority>
+                                    <description>It may become impossible to write to disk if there are no index nodes left.&#13;
+As symptoms, 'No space left on device' or 'Disk is full' errors may be seen even though free space is available.</description>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>{#FSNAME}: Running out of free inodes (free &lt; {$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}%)</name>
+                                            <expression>{airdeck_monitoring:vfs.fs.inode[{#FSNAME},pfree].min(5m)}&lt;{$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#FSNAME}: Space utilization</name>
+                            <key>vfs.fs.size[{#FSNAME},pused]</key>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>%</units>
+                            <description>Space utilization in % for {#FSNAME}</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Filesystem {#FSNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#FSNAME}: Total space</name>
+                            <key>vfs.fs.size[{#FSNAME},total]</key>
+                            <history>7d</history>
+                            <units>B</units>
+                            <description>Total space in Bytes</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Filesystem {#FSNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#FSNAME}: Used space</name>
+                            <key>vfs.fs.size[{#FSNAME},used]</key>
+                            <history>7d</history>
+                            <units>B</units>
+                            <description>Used storage in Bytes</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Filesystem {#FSNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{airdeck_monitoring:vfs.fs.size[{#FSNAME},pused].last()}&gt;{$VFS.FS.PUSED.MAX.CRIT:&quot;{#FSNAME}&quot;} and&#13;
+(({airdeck_monitoring:vfs.fs.size[{#FSNAME},total].last()}-{airdeck_monitoring:vfs.fs.size[{#FSNAME},used].last()})&lt;5G or {airdeck_monitoring:vfs.fs.size[{#FSNAME},pused].timeleft(1h,,100)}&lt;1d)</expression>
+                            <name>{#FSNAME}: Disk space is critically low (used &gt; {$VFS.FS.PUSED.MAX.CRIT:&quot;{#FSNAME}&quot;}%)</name>
+                            <opdata>Space used: {ITEM.LASTVALUE3} of {ITEM.LASTVALUE2} ({ITEM.LASTVALUE1})</opdata>
+                            <priority>AVERAGE</priority>
+                            <description>Two conditions should match: First, space utilization should be above {$VFS.FS.PUSED.MAX.CRIT:&quot;{#FSNAME}&quot;}.&#13;
+ Second condition should be one of the following:&#13;
+ - The disk free space is less than 5G.&#13;
+ - The disk will be full in less than 24 hours.</description>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{airdeck_monitoring:vfs.fs.size[{#FSNAME},pused].last()}&gt;{$VFS.FS.PUSED.MAX.WARN:&quot;{#FSNAME}&quot;} and&#13;
+(({airdeck_monitoring:vfs.fs.size[{#FSNAME},total].last()}-{airdeck_monitoring:vfs.fs.size[{#FSNAME},used].last()})&lt;10G or {airdeck_monitoring:vfs.fs.size[{#FSNAME},pused].timeleft(1h,,100)}&lt;1d)</expression>
+                            <name>{#FSNAME}: Disk space is low (used &gt; {$VFS.FS.PUSED.MAX.WARN:&quot;{#FSNAME}&quot;}%)</name>
+                            <opdata>Space used: {ITEM.LASTVALUE3} of {ITEM.LASTVALUE2} ({ITEM.LASTVALUE1})</opdata>
+                            <priority>WARNING</priority>
+                            <description>Two conditions should match: First, space utilization should be above {$VFS.FS.PUSED.MAX.WARN:&quot;{#FSNAME}&quot;}.&#13;
+ Second condition should be one of the following:&#13;
+ - The disk free space is less than 10G.&#13;
+ - The disk will be full in less than 24 hours.</description>
+                            <manual_close>YES</manual_close>
+                            <dependencies>
+                                <dependency>
+                                    <name>{#FSNAME}: Disk space is critically low (used &gt; {$VFS.FS.PUSED.MAX.CRIT:&quot;{#FSNAME}&quot;}%)</name>
+                                    <expression>{airdeck_monitoring:vfs.fs.size[{#FSNAME},pused].last()}&gt;{$VFS.FS.PUSED.MAX.CRIT:&quot;{#FSNAME}&quot;} and&#13;
+(({airdeck_monitoring:vfs.fs.size[{#FSNAME},total].last()}-{airdeck_monitoring:vfs.fs.size[{#FSNAME},used].last()})&lt;5G or {airdeck_monitoring:vfs.fs.size[{#FSNAME},pused].timeleft(1h,,100)}&lt;1d)</expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>{#FSNAME}: Disk space usage</name>
+                            <width>600</width>
+                            <height>340</height>
+                            <type>PIE</type>
+                            <show_3d>YES</show_3d>
+                            <graph_items>
+                                <graph_item>
+                                    <color>969696</color>
+                                    <calc_fnc>LAST</calc_fnc>
+                                    <type>GRAPH_SUM</type>
+                                    <item>
+                                        <host>airdeck_monitoring</host>
+                                        <key>vfs.fs.size[{#FSNAME},total]</key>
                                     </item>
                                 </graph_item>
                                 <graph_item>
-                                    <sortorder>3</sortorder>
-                                    <color>A54F10</color>
-                                    <yaxisside>RIGHT</yaxisside>
+                                    <sortorder>1</sortorder>
+                                    <color>C80000</color>
+                                    <calc_fnc>LAST</calc_fnc>
                                     <item>
                                         <host>airdeck_monitoring</host>
-                                        <key>net.if.in[&quot;{#IFNAME}&quot;,errors]</key>
-                                    </item>
-                                </graph_item>
-                                <graph_item>
-                                    <sortorder>4</sortorder>
-                                    <color>FC6EA3</color>
-                                    <yaxisside>RIGHT</yaxisside>
-                                    <item>
-                                        <host>airdeck_monitoring</host>
-                                        <key>net.if.out[&quot;{#IFNAME}&quot;,dropped]</key>
-                                    </item>
-                                </graph_item>
-                                <graph_item>
-                                    <sortorder>5</sortorder>
-                                    <color>6C59DC</color>
-                                    <yaxisside>RIGHT</yaxisside>
-                                    <item>
-                                        <host>airdeck_monitoring</host>
-                                        <key>net.if.in[&quot;{#IFNAME}&quot;,dropped]</key>
+                                        <key>vfs.fs.size[{#FSNAME},used]</key>
                                     </item>
                                 </graph_item>
                             </graph_items>
@@ -457,35 +769,6 @@ and {airdeck_monitoring:net.if.out[&quot;{#IFNAME}&quot;,errors].max(5m)}&lt;{$I
         </graph>
     </graphs>
     <value_maps>
-        <value_map>
-            <name>IF-MIB::ifOperStatus</name>
-            <mappings>
-                <mapping>
-                    <value>1</value>
-                    <newvalue>up</newvalue>
-                </mapping>
-                <mapping>
-                    <value>2</value>
-                    <newvalue>down</newvalue>
-                </mapping>
-                <mapping>
-                    <value>4</value>
-                    <newvalue>unknown</newvalue>
-                </mapping>
-                <mapping>
-                    <value>5</value>
-                    <newvalue>dormant</newvalue>
-                </mapping>
-                <mapping>
-                    <value>6</value>
-                    <newvalue>notPresent</newvalue>
-                </mapping>
-                <mapping>
-                    <value>7</value>
-                    <newvalue>lowerLayerDown</newvalue>
-                </mapping>
-            </mappings>
-        </value_map>
         <value_map>
             <name>Linux::Interface protocol types</name>
             <mappings>
