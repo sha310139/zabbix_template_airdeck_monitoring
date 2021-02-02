@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-02-02T05:10:13Z</date>
+    <groups>
+        <group>
+            <name>airdeck</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>airdeck_monitoring</template>
+            <name>airdeck_monitoring</name>
+            <templates>
+                <template>
+                    <name>Template Disk Performance</name>
+                </template>
+                <template>
+                    <name>Template Module Linux block devices by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Linux filesystems by Zabbix agent</name>
+                </template>
+                <template>
+                    <name>Template Module Linux network interfaces by Zabbix agent</name>
+                </template>
+            </templates>
+            <groups>
+                <group>
+                    <name>airdeck</name>
+                </group>
+            </groups>
+            <items>
+                <item>
+                    <name>CPU utilization</name>
+                    <type>DEPENDENT</type>
+                    <key>system.cpu.util</key>
+                    <delay>0</delay>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>CPU utilization in %</description>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>//Calculate utilization
+return (100 - value)</params>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>system.cpu.util[,idle]</key>
+                    </master_item>
+                </item>
+                <item>
+                    <name>CPU idle time</name>
+                    <key>system.cpu.util[,idle]</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <description>The time the CPU has spent doing nothing.</description>
+                </item>
+                <item>
+                    <name>Memory utilization</name>
+                    <type>CALCULATED</type>
+                    <key>vm.memory.util</key>
+                    <history>7d</history>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <params>last(&quot;vm.memory.size[used]&quot;) / last(&quot;vm.memory.size[total]&quot;) * 100</params>
+                    <description>Memory utilization in %</description>
+                </item>
+            </items>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>CPU utilization</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
+            <graph_items>
+                <graph_item>
+                    <drawtype>GRADIENT_LINE</drawtype>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>airdeck_monitoring</host>
+                        <key>system.cpu.util</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Memory utilization</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
+            <graph_items>
+                <graph_item>
+                    <drawtype>GRADIENT_LINE</drawtype>
+                    <color>1A7C11</color>
+                    <item>
+                        <host>airdeck_monitoring</host>
+                        <key>vm.memory.util</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
