@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-02-02T07:01:06Z</date>
+    <date>2021-02-02T07:24:36Z</date>
     <groups>
         <group>
             <name>airdeck</name>
@@ -596,42 +596,6 @@ Reference: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net<
                     </filter>
                     <description>Discovery of file systems of different types.</description>
                     <item_prototypes>
-                        <item_prototype>
-                            <name>{#FSNAME}: Free inodes in %</name>
-                            <key>vfs.fs.inode[{#FSNAME},pfree]</key>
-                            <history>7d</history>
-                            <value_type>FLOAT</value_type>
-                            <units>%</units>
-                            <application_prototypes>
-                                <application_prototype>
-                                    <name>Filesystem {#FSNAME}</name>
-                                </application_prototype>
-                            </application_prototypes>
-                            <trigger_prototypes>
-                                <trigger_prototype>
-                                    <expression>{min(5m)}&lt;{$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}</expression>
-                                    <name>{#FSNAME}: Running out of free inodes (free &lt; {$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}%)</name>
-                                    <opdata>Free inodes: {ITEM.LASTVALUE1}</opdata>
-                                    <priority>AVERAGE</priority>
-                                    <description>It may become impossible to write to disk if there are no index nodes left.&#13;
-As symptoms, 'No space left on device' or 'Disk is full' errors may be seen even though free space is available.</description>
-                                </trigger_prototype>
-                                <trigger_prototype>
-                                    <expression>{min(5m)}&lt;{$VFS.FS.INODE.PFREE.MIN.WARN:&quot;{#FSNAME}&quot;}</expression>
-                                    <name>{#FSNAME}: Running out of free inodes (free &lt; {$VFS.FS.INODE.PFREE.MIN.WARN:&quot;{#FSNAME}&quot;}%)</name>
-                                    <opdata>Free inodes: {ITEM.LASTVALUE1}</opdata>
-                                    <priority>WARNING</priority>
-                                    <description>It may become impossible to write to disk if there are no index nodes left.&#13;
-As symptoms, 'No space left on device' or 'Disk is full' errors may be seen even though free space is available.</description>
-                                    <dependencies>
-                                        <dependency>
-                                            <name>{#FSNAME}: Running out of free inodes (free &lt; {$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}%)</name>
-                                            <expression>{airdeck_monitoring:vfs.fs.inode[{#FSNAME},pfree].min(5m)}&lt;{$VFS.FS.INODE.PFREE.MIN.CRIT:&quot;{#FSNAME}&quot;}</expression>
-                                        </dependency>
-                                    </dependencies>
-                                </trigger_prototype>
-                            </trigger_prototypes>
-                        </item_prototype>
                         <item_prototype>
                             <name>{#FSNAME}: Space utilization</name>
                             <key>vfs.fs.size[{#FSNAME},pused]</key>
