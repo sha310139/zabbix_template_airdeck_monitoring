@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-02-02T07:24:36Z</date>
+    <date>2021-02-03T03:19:54Z</date>
     <groups>
         <group>
             <name>airdeck</name>
@@ -441,6 +441,69 @@ Reference: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net<
                             </master_item>
                         </item_prototype>
                         <item_prototype>
+                            <name>{#DEVNAME}: Disk read time (rate)</name>
+                            <type>DEPENDENT</type>
+                            <key>vfs.dev.read.time.rate[{#DEVNAME}]</key>
+                            <delay>0</delay>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <description>Rate of total read time counter. Used in r_await calculation</description>
+                            <applications>
+                                <application>
+                                    <name>Zabbix raw items</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$[3]</params>
+                                </step>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>vfs.file.contents[/sys/block/{#DEVNAME}/stat]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DEVNAME}: Disk utilization</name>
+                            <type>DEPENDENT</type>
+                            <key>vfs.dev.util[{#DEVNAME}]</key>
+                            <delay>0</delay>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <units>%</units>
+                            <description>This item is the percentage of elapsed time that the selected disk drive was busy servicing read or writes requests.</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>Disk {#DEVNAME}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$[9]</params>
+                                </step>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.1</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>vfs.file.contents[/sys/block/{#DEVNAME}/stat]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
                             <name>{#DEVNAME}: Disk write request avg waiting time (w_await)</name>
                             <type>CALCULATED</type>
                             <key>vfs.dev.write.await[{#DEVNAME}]</key>
@@ -477,6 +540,37 @@ Reference: https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net<
                                 <step>
                                     <type>CHANGE_PER_SECOND</type>
                                     <params/>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>vfs.file.contents[/sys/block/{#DEVNAME}/stat]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>{#DEVNAME}: Disk write time (rate)</name>
+                            <type>DEPENDENT</type>
+                            <key>vfs.dev.write.time.rate[{#DEVNAME}]</key>
+                            <delay>0</delay>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <description>Rate of total write time counter. Used in w_await calculation</description>
+                            <applications>
+                                <application>
+                                    <name>Zabbix raw items</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$[7]</params>
+                                </step>
+                                <step>
+                                    <type>CHANGE_PER_SECOND</type>
+                                    <params/>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
                                 </step>
                             </preprocessing>
                             <master_item>
