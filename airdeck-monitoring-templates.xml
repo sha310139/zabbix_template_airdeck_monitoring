@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-02-03T03:19:54Z</date>
+    <date>2021-02-08T06:20:17Z</date>
     <groups>
         <group>
             <name>airdeck</name>
@@ -61,6 +61,20 @@ return (100 - value)</params>
                     <value_type>FLOAT</value_type>
                     <units>%</units>
                     <description>The time the CPU has spent doing nothing.</description>
+                </item>
+                <item>
+                    <name>Total memory</name>
+                    <key>vm.memory.size[total]</key>
+                    <history>7d</history>
+                    <units>B</units>
+                    <description>Total memory in Bytes</description>
+                </item>
+                <item>
+                    <name>Used memory</name>
+                    <key>vm.memory.size[used]</key>
+                    <history>7d</history>
+                    <units>B</units>
+                    <description>Used memory in Bytes</description>
                 </item>
                 <item>
                     <name>Memory utilization</name>
